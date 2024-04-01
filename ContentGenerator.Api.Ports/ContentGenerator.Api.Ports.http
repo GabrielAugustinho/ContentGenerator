@@ -1,0 +1,6 @@
+@ContentGenerator.Api.Ports_HostAddress = http://localhost:5119
+
+GET {{ContentGenerator.Api.Ports_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
