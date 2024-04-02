@@ -22,30 +22,9 @@ namespace ContentGenerator.Api.Database.Context
         public DbSet<TipoValidacao> TipoValidacao { get; set; }
         public DbSet<WhatsApp> WhatsApp { get; set; }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<WhatsApp>(x =>
-        //    {
-
-        //        //.HasMaxLength(200)
-        //        //.HasColumnType("int")
-
-        //        x.HasKey(y => y.Id)
-        //            .HasName("id");
-        //        x.Property(y => y.Nome).IsRequired()
-        //            .HasColumnName("nome")
-        //            .HasMaxLength(200);
-        //        x.Property(y => y.Numero_Fone).IsRequired()
-        //            .HasColumnName("numero");
-
-        //        // Para casos de tabelas relacionadas dentro
-        //        // x.HasMany(y => y.Tabela).WithOne().HasForeignKey(s => s.IdRelacionamento)
-        //    });
-
-        //    // modelBuilder.Entity<Email>(x =>
-        //    // {
-        //    //    x.HasKey(y => y.Id);
-        //    // });
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(options => options.MigrationsAssembly("ContentGenerator.Api.Database"));
+        }
     }
 }
