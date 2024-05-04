@@ -1,7 +1,10 @@
 ﻿using ContentGenerator.Api.Core.Entities;
 using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+using ContentGenerator.Api.Core.Models;
+using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -26,7 +29,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpGet("v1/GetById/{id}")]
-        public async Task<ActionResult<WhatsApp>> GetById(int id)
+        public async Task<ActionResult<SearchWhatsAppOutput>> GetById(int id)
         {
             try
             {
@@ -43,13 +46,13 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             }
         }
 
-        [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<WhatsApp>>> GetAll(SearchWhatsAppInput input)
+        [HttpPost("v1/GetAll")]
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetAll(SearchWhatsAppInput input)
         {
             try
             {
                 input.Active = null;
-                var result = await _searchWhatsAppPaged.SearchPaged(input);
+                PageModel<SearchWhatsAppOutput> result = await _searchWhatsAppPaged.SearchPaged(input);
                 return Ok(result);
             }
             catch
@@ -58,8 +61,8 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             }
         }
 
-        [HttpGet("v1/GetActives")]
-        public async Task<ActionResult<List<WhatsApp>>> GetActives(SearchWhatsAppInput input)
+        [HttpPost("v1/GetActives")]
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetActives(SearchWhatsAppInput input)
         {
             try
             {
@@ -73,8 +76,8 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             }
         }
 
-        [HttpGet("v1/GetInactives")]
-        public async Task<ActionResult<List<WhatsApp>>> GetInactives(SearchWhatsAppInput input)
+        [HttpPost("v1/GetInactives")]
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetInactives(SearchWhatsAppInput input)
         {
             try
             {
@@ -89,7 +92,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpPost("v1/Add")]
-        public async Task<ActionResult<WhatsApp>> Add(AddWhatsAppInput input)
+        public async Task<ActionResult<string>> Add(AddWhatsAppInput input)
         {
             try
             {
@@ -107,7 +110,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpPut("v1/Update")]
-        public async Task<ActionResult<WhatsApp>> Update(UpdateWhatsAppInput input)
+        public async Task<ActionResult<string>> Update(UpdateWhatsAppInput input)
         {
             try
             {
@@ -125,7 +128,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpDelete("v1/Delete/{id}")]
-        public async Task<ActionResult<WhatsApp>> Delete(int id)
+        public async Task<ActionResult<string>> Delete(int id)
         {
             try
             {
