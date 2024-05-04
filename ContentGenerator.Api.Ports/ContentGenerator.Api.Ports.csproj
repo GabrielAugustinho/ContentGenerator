@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ContentGenerator.Api.Adapters\ContentGenerator.Api.Adapters.csproj" />
     <ProjectReference Include="..\ContentGenerator.Api.Core\ContentGenerator.Api.Core.csproj" />
     <ProjectReference Include="..\ContentGenerator.Api.Database\ContentGenerator.Api.Database.csproj" />
   </ItemGroup>

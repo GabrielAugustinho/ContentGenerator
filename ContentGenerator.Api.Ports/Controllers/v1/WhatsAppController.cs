@@ -1,7 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,68 +9,137 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class WhatsAppController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly ISearchWhatsAppPaged _searchWhatsAppPaged;
+        private readonly IAddWhatsAppNumber _addWhatsAppNumber;
+        private readonly IUpdateWhatsAppNumber _updateWhatsAppNumber;
+        private readonly IDeleteWhatsApp _deleteWhatsApp;
 
-        public WhatsAppController(DataContext dataContext)
+        public WhatsAppController(ISearchWhatsAppPaged searchWhatsAppPaged,
+                                  IAddWhatsAppNumber addWhatsAppNumber,
+                                  IUpdateWhatsAppNumber updateWhatsAppNumber,
+                                  IDeleteWhatsApp deleteWhatsApp)
         {
-            _dataContext = dataContext;
-        }
-
-        [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<WhatsApp>>> GetAll()
-        {
-            List<WhatsApp> whatsApps = await _dataContext.WhatsApp.ToListAsync();
-
-            return Ok(whatsApps);
+            _searchWhatsAppPaged = searchWhatsAppPaged;
+            _addWhatsAppNumber = addWhatsAppNumber;
+            _updateWhatsAppNumber = updateWhatsAppNumber;
+            _deleteWhatsApp = deleteWhatsApp;
         }
 
         [HttpGet("v1/GetById/{id}")]
         public async Task<ActionResult<WhatsApp>> GetById(int id)
         {
-            WhatsApp? whatsApp = await _dataContext.WhatsApp
-                // caso tenha uma lista e queira buscar também -> .Include(x => x.Lista)
-                .FindAsync(id);
+            try
+            {
+                var result = await _searchWhatsAppPaged.SearchById(id);
 
-            if (whatsApp is null)
-                return NotFound("WhatsApp não encontrado.");
+                if (result is null)
+                    return NotFound("WhatsApp não encontrado.");
 
-            return Ok(whatsApp);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os contatos do WhatsApp.");
+            }
+        }
+
+        [HttpGet("v1/GetAll")]
+        public async Task<ActionResult<List<WhatsApp>>> GetAll(SearchWhatsAppInput input)
+        {
+            try
+            {
+                input.Active = null;
+                var result = await _searchWhatsAppPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os contatos do WhatsApp.");
+            }
+        }
+
+        [HttpGet("v1/GetActives")]
+        public async Task<ActionResult<List<WhatsApp>>> GetActives(SearchWhatsAppInput input)
+        {
+            try
+            {
+                input.Active = true;
+                var result = await _searchWhatsAppPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os contatos do WhatsApp.");
+            }
+        }
+
+        [HttpGet("v1/GetInactives")]
+        public async Task<ActionResult<List<WhatsApp>>> GetInactives(SearchWhatsAppInput input)
+        {
+            try
+            {
+                input.Active = false;
+                var result = await _searchWhatsAppPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os contatos do WhatsApp.");
+            }
         }
 
         [HttpPost("v1/Add")]
-        public async Task<ActionResult<WhatsApp>> Add(WhatsApp input)
+        public async Task<ActionResult<WhatsApp>> Add(AddWhatsAppInput input)
         {
-            _dataContext.WhatsApp.Add(input);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                var result = await _addWhatsAppNumber.Execute(input);
 
-            return CreatedAtAction(nameof(GetById), await _dataContext.WhatsApp.FindAsync(input.WhatsAppId), input);
+                if (!result)
+                    return BadRequest("Ocorreu um erro ao tentar adicionar o contato do WhatsApp.");
+
+                return Ok("Contato adicionado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao adicionar um contato no WhatsApp.");
+            }
         }
 
         [HttpPut("v1/Update")]
-        public async Task<ActionResult<WhatsApp>> Update(WhatsApp input)
+        public async Task<ActionResult<WhatsApp>> Update(UpdateWhatsAppInput input)
         {
-            WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(input.WhatsAppId);
-            if (dbWhatsApp is null)
-                return NotFound("WhatsApp não encontrado.");
+            try
+            {
+                var result = await _updateWhatsAppNumber.Execute(input);
 
-            dbWhatsApp.Update(input.Nome, input.Numero_Fone);
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar atualizar o contato do WhatsApp, verifique se o Id é válido.");
 
-            await _dataContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), await _dataContext.WhatsApp.FindAsync(input.WhatsAppId), input);
+                return Ok("Contato atualizado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao atualizar o contato no WhatsApp.");
+            }
         }
 
         [HttpDelete("v1/Delete/{id}")]
         public async Task<ActionResult<WhatsApp>> Delete(int id)
         {
-            WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(id);
-            if (dbWhatsApp is null)
-                return NotFound("WhatsApp não encontrado.");
+            try
+            {
+                var result = await _deleteWhatsApp.Execute(id);
 
-            dbWhatsApp.Delete();
-            await _dataContext.SaveChangesAsync();
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar deletar o contato do WhatsApp, verifique se o Id é válido.");
 
-            return Ok("Deletado com sucesso!");
+                return Ok("Contato deletado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao deletar o contato no WhatsApp.");
+            }
         }
     }
 }

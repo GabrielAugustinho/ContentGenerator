@@ -1,14 +1,15 @@
 using ContentGenerator.Api.Database.Context;
+using ContentGenerator.Api.Ports.Configurations;
+using ContentGenerator.Api.Ports.Setup;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.AddSwaggerConfiguration();
+builder.Services.RegisterService();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -17,17 +18,13 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwaggerConfiguration(app.Environment);
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }
