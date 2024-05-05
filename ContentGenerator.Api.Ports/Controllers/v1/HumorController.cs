@@ -1,7 +1,6 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+﻿using ContentGenerator.Api.Core.OutputPort.HumorPort;
+using ContentGenerator.Api.Core.UseCases.HumorCase;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,41 +8,25 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class HumorController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly ISearchHumor _searchHumor;
 
-        public HumorController(DataContext dataContext)
+        public HumorController(ISearchHumor searchHumor)
         {
-            _dataContext = dataContext;
+            _searchHumor = searchHumor;
         }
 
         [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<Humor>>> GetAll()
+        public async Task<ActionResult<IEnumerable<HumorOutput>>> GetAll()
         {
-            List<Humor> humores = await _dataContext.Humor.ToListAsync();
-
-            return Ok(humores);
-        }
-
-        [HttpPost("v1/Add")]
-        public async Task<ActionResult<List<Humor>>> Add(Humor input)
-        {
-            _dataContext.Humor.Add(input);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.Humor.ToListAsync());
-        }
-
-        [HttpDelete("v1/Delete/{id}")]
-        public async Task<ActionResult<List<Humor>>> Delete(int id)
-        {
-            Humor? dbHumor = await _dataContext.Humor.FindAsync(id);
-            if (dbHumor is null)
-                return NotFound("Humor não encontrada.");
-
-            _dataContext.Humor.Remove(dbHumor);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.Humor.ToListAsync());
+            try
+            {
+                var result = await _searchHumor.Execute();
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os humores.");
+            }
         }
     }
 }

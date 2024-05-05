@@ -1,7 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
-using ContentGenerator.Api.Core.UseCases.DestinyCase;
+using ContentGenerator.Api.Core.OutputPort.DestinyPort;
 
-namespace ContentGenerator.Api.Core.OutputPort.DestinyPort
+namespace ContentGenerator.Api.Core.UseCases.DestinyCase
 {
     public class SearchDestiny : ISearchDestiny
     {
