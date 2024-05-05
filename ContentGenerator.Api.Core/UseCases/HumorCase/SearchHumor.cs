@@ -12,7 +12,7 @@ namespace ContentGenerator.Api.Core.UseCases.HumorCase
             _humorRepository = humorRepository;
         }
 
-        public async Task<IEnumerable<HumorOutput>?> Execute()
+        public async Task<IEnumerable<SearchHumorOutput>?> Execute()
         {
             var outputList = await _humorRepository.GetAllHumor();
 

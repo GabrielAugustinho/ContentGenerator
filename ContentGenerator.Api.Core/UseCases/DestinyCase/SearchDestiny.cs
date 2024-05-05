@@ -12,7 +12,7 @@ namespace ContentGenerator.Api.Core.UseCases.DestinyCase
             _destinyRepository = destinyRepository;
         }
 
-        public async Task<IEnumerable<DestinyOutput>?> Execute()
+        public async Task<IEnumerable<SearchDestinyOutput>?> Execute()
         {
             var outputList = await _destinyRepository.GetAllDestiny();
 

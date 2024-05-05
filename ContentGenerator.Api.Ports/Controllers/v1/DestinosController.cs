@@ -16,7 +16,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<IEnumerable<DestinyOutput>?>> GetAll()
+        public async Task<ActionResult<IEnumerable<SearchDestinyOutput>?>> GetAll()
         {
             try
             {

@@ -1,6 +1,5 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Core.OutputPort.DestinyPort;
 using ContentGenerator.Api.Core.OutputPort.HumorPort;
 using ContentGenerator.Api.Database.Context;
 using Microsoft.EntityFrameworkCore;
@@ -16,19 +15,19 @@ namespace ContentGenerator.Api.Adapters.Repository
             _dataContext = dataContext;
         }
 
-        public async Task<IEnumerable<HumorOutput>?> GetAllHumor()
+        public async Task<IEnumerable<SearchHumorOutput>?> GetAllHumor()
         {
             List<Humor> humores = await _dataContext.Humor.ToListAsync();
 
             return ListHumorToListHumorOutput(humores);
         }
 
-        private static IEnumerable<HumorOutput> ListHumorToListHumorOutput(List<Humor> humores)
+        private static List<SearchHumorOutput> ListHumorToListHumorOutput(List<Humor> humores)
         {
-            var output = new List<HumorOutput>();
+            var output = new List<SearchHumorOutput>();
 
             foreach (var item in humores)
-                output.Add(new HumorOutput(item.HumorId, item.Descricao));
+                output.Add(new SearchHumorOutput(item.HumorId, item.Descricao));
 
             return output;
         }

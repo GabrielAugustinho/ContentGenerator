@@ -4,6 +4,6 @@ namespace ContentGenerator.Api.Core.Abstractions
 {
     public interface IHumorRepository
     {
-        Task<IEnumerable<HumorOutput>?> GetAllHumor();
+        Task<IEnumerable<SearchHumorOutput>?> GetAllHumor();
     }
 }

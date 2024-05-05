@@ -15,19 +15,19 @@ namespace ContentGenerator.Api.Adapters.Repository
             _dataContext = dataContext;
         }
 
-        public async Task<IEnumerable<DestinyOutput>> GetAllDestiny()
+        public async Task<IEnumerable<SearchDestinyOutput>> GetAllDestiny()
         {
             List<Destinos> destinos = await _dataContext.Destinos.ToListAsync();
 
             return ListDestinosToListDestinyOutput(destinos);
         }
 
-        private static IEnumerable<DestinyOutput> ListDestinosToListDestinyOutput(List<Destinos> destinos)
+        private static List<SearchDestinyOutput> ListDestinosToListDestinyOutput(List<Destinos> destinos)
         {
-            var output = new List<DestinyOutput>();
+            var output = new List<SearchDestinyOutput>();
 
             foreach(var item in destinos)
-                output.Add(new DestinyOutput(item.DestinosId, item.Descricao));
+                output.Add(new SearchDestinyOutput(item.DestinosId, item.Descricao));
 
             return output;
         }

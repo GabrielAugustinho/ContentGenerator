@@ -4,6 +4,6 @@ namespace ContentGenerator.Api.Core.Abstractions
 {
     public interface IDestinyRepository
     {
-        Task<IEnumerable<DestinyOutput>> GetAllDestiny();
+        Task<IEnumerable<SearchDestinyOutput>> GetAllDestiny();
     }
 }

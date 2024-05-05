@@ -3,6 +3,7 @@ using ContentGenerator.Api.Adapters.Repository.WhatsAppRepo;
 using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.UseCases.DestinyCase;
 using ContentGenerator.Api.Core.UseCases.HumorCase;
+using ContentGenerator.Api.Core.UseCases.ValidationCase;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
 
@@ -22,11 +23,13 @@ namespace ContentGenerator.Api.Ports.Setup
 
             services.AddScoped<ISearchDestiny, SearchDestiny>();
             services.AddScoped<ISearchHumor, SearchHumor>();
+            services.AddScoped<ISearchValidation, SearchValidation>();
 
             // Abstractions
             services.AddScoped<IWhatsAppRepository, WhatsAppRepository>();
             services.AddScoped<IDestinyRepository, DestinyRepository>();
             services.AddScoped<IHumorRepository, HumorRepository>();
+            services.AddScoped<IValidationRepository, ValidationRepository>();
 
             // Others
 

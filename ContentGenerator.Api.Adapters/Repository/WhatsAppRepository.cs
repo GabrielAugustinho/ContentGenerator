@@ -57,7 +57,7 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
             return ListWhatsAppToListOutput(whatsApps, totalCount);
         }
 
-        private static IEnumerable<SearchWhatsAppOutput> ListWhatsAppToListOutput(List<WhatsApp> whatsApp, int totalCount)
+        private static List<SearchWhatsAppOutput> ListWhatsAppToListOutput(List<WhatsApp> whatsApp, int totalCount)
         {
             var output = new List<SearchWhatsAppOutput>();
 

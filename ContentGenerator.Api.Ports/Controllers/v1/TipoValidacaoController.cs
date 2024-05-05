@@ -1,7 +1,6 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+﻿using ContentGenerator.Api.Core.OutputPort.ValidationPort;
+using ContentGenerator.Api.Core.UseCases.ValidationCase;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,41 +8,25 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class TipoValidacaoController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly ISearchValidation _searchValidation;
 
-        public TipoValidacaoController(DataContext dataContext)
+        public TipoValidacaoController(ISearchValidation searchValidation)
         {
-            _dataContext = dataContext;
+            _searchValidation = searchValidation;
         }
 
         [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<TipoValidacao>>> GetAll()
+        public async Task<ActionResult<List<SearchValidationOutput>>> GetAll()
         {
-            List<TipoValidacao> tipoValidacoes = await _dataContext.TipoValidacao.ToListAsync();
-
-            return Ok(tipoValidacoes);
-        }
-
-        [HttpPost("v1/Add")]
-        public async Task<ActionResult<List<TipoValidacao>>> Add(TipoValidacao input)
-        {
-            _dataContext.TipoValidacao.Add(input);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.TipoValidacao.ToListAsync());
-        }
-
-        [HttpDelete("v1/Delete/{id}")]
-        public async Task<ActionResult<List<TipoValidacao>>> Delete(int id)
-        {
-            TipoValidacao? dbTipoValidacao = await _dataContext.TipoValidacao.FindAsync(id);
-            if (dbTipoValidacao is null)
-                return NotFound("Tipo validacao não encontrada.");
-
-            _dataContext.TipoValidacao.Remove(dbTipoValidacao);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.TipoValidacao.ToListAsync());
+            try
+            {
+                var result = await _searchValidation.Execute();
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os tipos de validação.");
+            }
         }
     }
 }
