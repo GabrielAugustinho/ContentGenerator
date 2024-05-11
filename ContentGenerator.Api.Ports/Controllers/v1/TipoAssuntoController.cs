@@ -1,7 +1,6 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+﻿using ContentGenerator.Api.Core.OutputPort.SubjectTypePort;
+using ContentGenerator.Api.Core.UseCases.SubjectTypeCase;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,28 +8,25 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class TipoAssuntoController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly ISearchSubjectType _searchSubjectType;
 
-        public TipoAssuntoController(DataContext dataContext)
+        public TipoAssuntoController(ISearchSubjectType searchSubjectType)
         {
-            _dataContext = dataContext;
+            _searchSubjectType = searchSubjectType;
         }
 
         [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<TipoAssunto>>> GetAll()
+        public async Task<ActionResult<List<SearchSubjectTypeOutput>>> GetAll()
         {
-            List<TipoAssunto> tipoAssuntos = await _dataContext.TipoAssunto.ToListAsync();
-
-            return Ok(tipoAssuntos);
-        }
-
-        [HttpPost("v1/Add")]
-        public async Task<ActionResult<List<TipoAssunto>>> Add(TipoAssunto input)
-        {
-            _dataContext.TipoAssunto.Add(input);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.TipoAssunto.ToListAsync());
+            try
+            {
+                var result = await _searchSubjectType.Execute();
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os tipos de assunto.");
+            }
         }
     }
 }
