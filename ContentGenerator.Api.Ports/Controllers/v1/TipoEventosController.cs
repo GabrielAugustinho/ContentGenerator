@@ -1,7 +1,6 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+﻿using ContentGenerator.Api.Core.OutputPort.HomagePort;
+using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,28 +8,25 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class TipoEventosController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly ISearchEventType _searchValidation;
 
-        public TipoEventosController(DataContext dataContext)
+        public TipoEventosController(ISearchEventType searchEventType)
         {
-            _dataContext = dataContext;
+            _searchValidation = searchEventType;
         }
 
         [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<TipoHomenagem>>> GetAll()
+        public async Task<ActionResult<List<SearchEventTypeOutput>>> GetAll()
         {
-            List<TipoHomenagem> tipoHomenagems = await _dataContext.TipoHomenagem.ToListAsync();
-
-            return Ok(tipoHomenagems);
-        }
-
-        [HttpPost("v1/Add")]
-        public async Task<ActionResult<List<TipoHomenagem>>> Add(TipoHomenagem input)
-        {
-            _dataContext.TipoHomenagem.Add(input);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.TipoHomenagem.ToListAsync());
+            try
+            {
+                var result = await _searchValidation.Execute();
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os tipos de eventos.");
+            }
         }
     }
 }
