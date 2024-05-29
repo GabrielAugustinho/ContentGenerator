@@ -19,6 +19,35 @@ namespace ContentGenerator.Api.Adapters.Repository
             _dataContext = dataContext;
         }
 
+        public async Task<bool> AddEvent(AddEventInput input)
+        {
+            try
+            {
+                var newHomenagem = new Homenagem
+                {
+                    DestinosId = input.DestinosId,
+                    HumorId = input.HumorId,
+                    TipoValidacaoId = input.TipoValidacaoId,
+                    TipoHomenagemId = input.TipoEventoId,
+                    Dia = input.Dia,
+                    Mes = input.Mes,
+                    Ano = input.Ano,
+                    ObjEveAssunto = input.DescricaoUsuario,
+                    Descricao = input.Descricao,
+                    Ativo = true
+                };
+
+                await _dataContext.Homenagem.AddAsync(newHomenagem);
+                await _dataContext.SaveChangesAsync();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<IEnumerable<SearchEventOutput>?> GetEventsByDate(SearchEventInput inputPort)
         {
             var targetDate = inputPort.DateTime;
@@ -27,7 +56,9 @@ namespace ContentGenerator.Api.Adapters.Repository
             var year = targetDate.Year;
 
             var homenagens = await _dataContext.Homenagem
-                .Where(h => h.Ativo && h.Dia == day && h.Mes == month && h.Ano == year)
+                .Where(h => h.Ativo &&
+                            ((h.Dia == day && h.Mes == month && h.Ano == year) ||
+                             (h.Dia == day && h.Mes == month && h.TipoHomenagemId == 3)))
                 .Include(h => h.Destinos)
                 .Include(h => h.Humor)
                 .Include(h => h.TipoValidacao)
@@ -36,6 +67,7 @@ namespace ContentGenerator.Api.Adapters.Repository
 
             return homenagens.Select(h => ToSearchEventOutput(h)).ToList();
         }
+
 
         public async Task<IEnumerable<SearchEventOutput>?> GetEventsOfMonth()
         {

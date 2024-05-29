@@ -10,10 +10,12 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     public class EventoController : ControllerBase
     {
         private readonly ISearchEvent _searchEvent;
+        private readonly IAddEvent _addEvent;
 
-        public EventoController(ISearchEvent searchEvent)
+        public EventoController(ISearchEvent searchEvent, IAddEvent addEvent)
         {
             _searchEvent = searchEvent;
+            _addEvent = addEvent;
         }
 
         [HttpGet("v1/GetAllEventsOfMonth")]
@@ -41,6 +43,24 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             catch
             {
                 return BadRequest("Ocorreu uma falha ao listar os eventos deste mês.");
+            }
+        }
+
+        [HttpPost("v1/Add")]
+        public async Task<ActionResult<string>> Add(AddEventInput addEventInput)
+        {
+            try
+            {
+                var result = await _addEvent.Execute(addEventInput);
+
+                if (!result)
+                    return BadRequest("Ocorreu um erro ao tentar adicionar o evento.");
+
+                return Ok("Evento adicionado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao adicionar o evento.");
             }
         }
     }
