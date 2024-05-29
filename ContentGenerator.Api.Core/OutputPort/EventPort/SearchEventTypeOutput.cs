@@ -1,4 +1,4 @@
-﻿namespace ContentGenerator.Api.Core.OutputPort.HomagePort
+﻿namespace ContentGenerator.Api.Core.OutputPort.EventPort
 {
     public class SearchEventTypeOutput(int id, string descricao)
     {

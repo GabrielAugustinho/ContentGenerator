@@ -1,6 +1,6 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Core.OutputPort.HomagePort;
+using ContentGenerator.Api.Core.OutputPort.EventPort;
 using ContentGenerator.Api.Database.Context;
 using Microsoft.EntityFrameworkCore;
 

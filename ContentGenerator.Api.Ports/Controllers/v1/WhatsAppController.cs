@@ -1,10 +1,8 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+﻿using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {

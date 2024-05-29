@@ -1,6 +1,4 @@
-﻿using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
-
-namespace ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces
+﻿namespace ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces
 {
     public interface IDeleteWhatsApp
     {

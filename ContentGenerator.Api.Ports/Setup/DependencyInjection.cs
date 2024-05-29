@@ -2,6 +2,10 @@
 using ContentGenerator.Api.Adapters.Repository.WhatsAppRepo;
 using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.UseCases.DestinyCase;
+using ContentGenerator.Api.Core.UseCases.EmailCase;
+using ContentGenerator.Api.Core.UseCases.EmailCase.Interfaces;
+using ContentGenerator.Api.Core.UseCases.EventCase;
+using ContentGenerator.Api.Core.UseCases.EventCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HumorCase;
@@ -24,6 +28,13 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IUpdateWhatsAppNumber, UpdateWhatsAppNumber>();
             services.AddScoped<IDeleteWhatsApp, DeleteWhatsApp>();
 
+            services.AddScoped<IDeleteEmail, DeleteEmail>();
+            services.AddScoped<IUpdateEmail, UpdateEmail>();
+            services.AddScoped<IAddEmail, AddEmail>();
+            services.AddScoped<ISearchEmailPaged, SearchEmailPaged>();
+
+            services.AddScoped<ISearchEvent, SearchEvent>();
+
             services.AddScoped<ISearchDestiny, SearchDestiny>();
             services.AddScoped<ISearchHumor, SearchHumor>();
             services.AddScoped<ISearchValidation, SearchValidation>();
@@ -37,6 +48,8 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IValidationRepository, ValidationRepository>();
             services.AddScoped<IEventTypeRepository, EventTypeRepository>();
             services.AddScoped<ISubjectTypeRepository, SubjectTypeRepository>();
+            services.AddScoped<IEmailRepository, EmailRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
 
             // Others
 

@@ -1,4 +1,4 @@
-﻿using ContentGenerator.Api.Core.OutputPort.HomagePort;
+﻿using ContentGenerator.Api.Core.OutputPort.EventPort;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-﻿using ContentGenerator.Api.Core.OutputPort.HomagePort;
+﻿using ContentGenerator.Api.Core.OutputPort.EventPort;
 
 namespace ContentGenerator.Api.Core.Abstractions
 {

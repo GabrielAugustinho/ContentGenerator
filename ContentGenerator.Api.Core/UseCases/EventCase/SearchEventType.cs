@@ -1,5 +1,5 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
-using ContentGenerator.Api.Core.OutputPort.HomagePort;
+using ContentGenerator.Api.Core.OutputPort.EventPort;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 
 namespace ContentGenerator.Api.Core.UseCases.HomenagemCase

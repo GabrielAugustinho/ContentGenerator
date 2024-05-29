@@ -1,7 +1,10 @@
-﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+﻿using ContentGenerator.Api.Core.InputPort.EmailPort;
+using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+using ContentGenerator.Api.Core.Models;
+using ContentGenerator.Api.Core.OutputPort.EmailPort;
+using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
+using ContentGenerator.Api.Core.UseCases.EmailCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,66 +12,137 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class EmailController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly IDeleteEmail _deleteEmail;
+        private readonly IUpdateEmail _updateEmail;
+        private readonly IAddEmail _addEmail;
+        private readonly ISearchEmailPaged _searchEmailPaged;
 
-        public EmailController(DataContext dataContext)
+        public EmailController(IDeleteEmail deleteEmail,
+                               IUpdateEmail updateEmail,
+                               IAddEmail addEmail,
+                               ISearchEmailPaged searchEmailInput)
         {
-            _dataContext = dataContext;
-        }
-
-        [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<Email>>> GetAll()
-        {
-            List<Email> emails = await _dataContext.Email.ToListAsync();
-
-            return Ok(emails);
+            _deleteEmail = deleteEmail;
+            _updateEmail = updateEmail;
+            _addEmail = addEmail;
+            _searchEmailPaged = searchEmailInput;
         }
 
         [HttpGet("v1/GetById/{id}")]
-        public async Task<ActionResult<Email>> GetById(int id)
+        public async Task<ActionResult<SearchEmailOutput>> GetById(int id)
         {
-            Email? email = await _dataContext.Email.FindAsync(id);
+            try
+            {
+                var result = await _searchEmailPaged.SearchById(id);
 
-            if (email is null)
-                return NotFound("Email não encontrado.");
+                if (result is null)
+                    return NotFound("Email não encontrado.");
 
-            return Ok(email);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar o email.");
+            }
+        }
+
+        [HttpPost("v1/GetAll")]
+        public async Task<ActionResult<PageModel<SearchEmailOutput>>> GetAll(SearchEmailInput input)
+        {
+            try
+            {
+                input.Active = null;
+                PageModel<SearchEmailOutput> result = await _searchEmailPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os Emails.");
+            }
+        }
+
+        [HttpPost("v1/GetActives")]
+        public async Task<ActionResult<PageModel<SearchEmailOutput>>> GetActives(SearchEmailInput input)
+        {
+            try
+            {
+                input.Active = true;
+                var result = await _searchEmailPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os emails.");
+            }
+        }
+
+        [HttpPost("v1/GetInactives")]
+        public async Task<ActionResult<PageModel<SearchEmailOutput>>> GetInactives(SearchEmailInput input)
+        {
+            try
+            {
+                input.Active = false;
+                var result = await _searchEmailPaged.SearchPaged(input);
+                return Ok(result);
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao listar os emails.");
+            }
         }
 
         [HttpPost("v1/Add")]
-        public async Task<ActionResult<Email>> Add(Email input)
+        public async Task<ActionResult<string>> Add(AddEmailInput input)
         {
-            _dataContext.Email.Add(input);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                var result = await _addEmail.Execute(input);
 
-            return CreatedAtAction(nameof(GetById), await _dataContext.Email.FindAsync(input.EmailId), input);
+                if (!result)
+                    return BadRequest("Ocorreu um erro ao tentar adicionar o Email.");
+
+                return Ok("Email adicionado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao adicionar um Email.");
+            }
         }
 
         [HttpPut("v1/Update")]
-        public async Task<ActionResult<Email>> Update(Email input)
+        public async Task<ActionResult<string>> Update(UpdateEmailInput input)
         {
-            Email? dbEmail = await _dataContext.Email.FindAsync(input.EmailId);
-            if (dbEmail is null)
-                return NotFound("Email não encontrado.");
+            try
+            {
+                var result = await _updateEmail.Execute(input);
 
-            dbEmail.Update(input.NomeCliente, input.EmailCliente);
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar atualizar o Email, verifique se o Id é válido.");
 
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.Email.FindAsync(input.EmailId));
+                return Ok("Email atualizado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao atualizar o Email.");
+            }
         }
 
         [HttpDelete("v1/Delete/{id}")]
-        public async Task<ActionResult<Email>> Delete(int id)
+        public async Task<ActionResult<string>> Delete(int id)
         {
-            Email? dbEmail = await _dataContext.Email.FindAsync(id);
-            if (dbEmail is null)
-                return NotFound("Email não encontrado.");
+            try
+            {
+                var result = await _deleteEmail.Execute(id);
 
-            dbEmail.Delete();
-            await _dataContext.SaveChangesAsync();
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar deletar o email, verifique se o Id é válido.");
 
-            return Ok("Deletado com sucesso!");
+                return Ok("Email deletado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao deletar o email.");
+            }
         }
     }
 }
