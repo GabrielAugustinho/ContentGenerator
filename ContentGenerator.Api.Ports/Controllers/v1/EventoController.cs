@@ -11,11 +11,15 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     {
         private readonly ISearchEvent _searchEvent;
         private readonly IAddEvent _addEvent;
+        private readonly IUpdateEvent _updateEvent;
+        private readonly IDeleteEvent _deleteEvent;
 
-        public EventoController(ISearchEvent searchEvent, IAddEvent addEvent)
+        public EventoController(ISearchEvent searchEvent, IAddEvent addEvent, IUpdateEvent updateEvent, IDeleteEvent deleteEvent)
         {
             _searchEvent = searchEvent;
             _addEvent = addEvent;
+            _updateEvent = updateEvent;
+            _deleteEvent = deleteEvent;
         }
 
         [HttpGet("v1/GetAllEventsOfMonth")]
@@ -61,6 +65,42 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             catch
             {
                 return BadRequest("Ocorreu uma falha ao adicionar o evento.");
+            }
+        }
+
+        [HttpPut("v1/Update")]
+        public async Task<ActionResult<string>> Update(UpdateEventInput input)
+        {
+            try
+            {
+                var result = await _updateEvent.Execute(input);
+
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar atualizar o evento, verifique se o Id é válido.");
+
+                return Ok("Evento atualizado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao atualizar o evento.");
+            }
+        }
+
+        [HttpDelete("v1/Delete/{id}")]
+        public async Task<ActionResult<string>> Delete(int id)
+        {
+            try
+            {
+                var result = await _deleteEvent.Execute(id);
+
+                if (!result)
+                    return NotFound("Ocorreu um erro ao tentar deletar o evento, verifique se o Id é válido.");
+
+                return Ok("Evento deletado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao deletar o evento.");
             }
         }
     }

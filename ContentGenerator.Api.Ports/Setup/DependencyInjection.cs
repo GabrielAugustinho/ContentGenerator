@@ -35,6 +35,8 @@ namespace ContentGenerator.Api.Ports.Setup
 
             services.AddScoped<ISearchEvent, SearchEvent>();
             services.AddScoped<IAddEvent, AddEvent>();
+            services.AddScoped<IUpdateEvent, UpdateEvent>();
+            services.AddScoped<IDeleteEvent, DeleteEvent>();
 
             services.AddScoped<ISearchDestiny, SearchDestiny>();
             services.AddScoped<ISearchHumor, SearchHumor>();

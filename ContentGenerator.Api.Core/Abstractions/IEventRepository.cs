@@ -8,5 +8,7 @@ namespace ContentGenerator.Api.Core.Abstractions
         Task<IEnumerable<SearchEventOutput>?> GetEventsOfMonth();
         Task<IEnumerable<SearchEventOutput>?> GetEventsByDate(SearchEventInput inputPort);
         Task<bool> AddEvent(AddEventInput input);
+        Task<bool> UpdateEvent(UpdateEventInput input);
+        Task<bool> DeleteEvent(int id);
     }
 }
