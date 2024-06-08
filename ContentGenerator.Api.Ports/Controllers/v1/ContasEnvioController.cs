@@ -1,7 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Database.Context;
+using ContentGenerator.Api.Core.InputPort.ShippingAccounts;
+using ContentGenerator.Api.Core.UseCases.ShippingAccounts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ContentGenerator.Api.Ports.Controllers.v1
 {
@@ -9,39 +9,29 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class ContasEnvioController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly IAddShippingAccounts _addShippingAccounts;
 
-        public ContasEnvioController(DataContext dataContext)
+        public ContasEnvioController(IAddShippingAccounts addShippingAccounts)
         {
-            _dataContext = dataContext;
-        }
-
-        [HttpGet("v1/GetAll")]
-        public async Task<ActionResult<List<ContasEnvio>>> GetAll()
-        {
-            List<ContasEnvio> contas = await _dataContext.ContasEnvio.ToListAsync();
-
-            return Ok(contas);
-        }
-
-        [HttpGet("v1/GetById/{id}")]
-        public async Task<ActionResult<ContasEnvio>> GetById(int id)
-        {
-            ContasEnvio? contas = await _dataContext.ContasEnvio.FindAsync(id);
-
-            if (contas is null)
-                return NotFound("Conta de envio não encontrada.");
-
-            return Ok(contas);
+            _addShippingAccounts = addShippingAccounts;
         }
 
         [HttpPost("v1/Add")]
-        public async Task<ActionResult<ContasEnvio>> Add(ContasEnvio input)
+        public async Task<ActionResult<ContasEnvio>> Add(AddShippingAccountsInput input)
         {
-            _dataContext.ContasEnvio.Add(input);
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                var result = await _addShippingAccounts.Execute(input);
 
-            return CreatedAtAction(nameof(GetById), await _dataContext.ContasEnvio.FindAsync(input.ContasEnvioId), input);
+                if (!result)
+                    return BadRequest("Ocorreu um erro ao tentar definir os contatos de envio.");
+
+                return Ok("Contato para envio adicionado com sucesso.");
+            }
+            catch
+            {
+                return BadRequest("Ocorreu uma falha ao definir os contatod de envio.");
+            }
         }
     }
 }

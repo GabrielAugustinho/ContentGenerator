@@ -9,6 +9,7 @@ using ContentGenerator.Api.Core.UseCases.EventCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HumorCase;
+using ContentGenerator.Api.Core.UseCases.ShippingAccounts;
 using ContentGenerator.Api.Core.UseCases.SubjectTypeCase;
 using ContentGenerator.Api.Core.UseCases.ValidationCase;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase;
@@ -43,6 +44,7 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<ISearchValidation, SearchValidation>();
             services.AddScoped<ISearchEventType, SearchEventType>();
             services.AddScoped<ISearchSubjectType, SearchSubjectType>();
+            services.AddScoped<IAddShippingAccounts, AddShippingAccounts>();
 
             // Abstractions
             services.AddScoped<IWhatsAppRepository, WhatsAppRepository>();
@@ -53,6 +55,7 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<ISubjectTypeRepository, SubjectTypeRepository>();
             services.AddScoped<IEmailRepository, EmailRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IShippingAccountsRepository, ShippingAccountsRepository>();
 
             // Others
 
