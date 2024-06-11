@@ -1,6 +1,6 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.Entities;
-using ContentGenerator.Api.Core.InputPort.ShippingAccounts;
+using ContentGenerator.Api.Core.InputPort.ShippingAccountsPort;
 using ContentGenerator.Api.Database.Context;
 using Microsoft.EntityFrameworkCore;
 

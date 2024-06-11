@@ -1,4 +1,4 @@
-﻿using ContentGenerator.Api.Core.InputPort.ShippingAccounts;
+﻿using ContentGenerator.Api.Core.InputPort.ShippingAccountsPort;
 
 namespace ContentGenerator.Api.Core.Abstractions
 {

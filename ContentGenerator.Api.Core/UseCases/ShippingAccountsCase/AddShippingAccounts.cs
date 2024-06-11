@@ -1,7 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
-using ContentGenerator.Api.Core.InputPort.ShippingAccounts;
+using ContentGenerator.Api.Core.InputPort.ShippingAccountsPort;
 
-namespace ContentGenerator.Api.Core.UseCases.ShippingAccounts
+namespace ContentGenerator.Api.Core.UseCases.ShippingAccountsCase
 {
     public class AddShippingAccounts : IAddShippingAccounts
     {

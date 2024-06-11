@@ -1,6 +1,8 @@
 ﻿using ContentGenerator.Api.Adapters.Repository;
 using ContentGenerator.Api.Adapters.Repository.WhatsAppRepo;
 using ContentGenerator.Api.Core.Abstractions;
+using ContentGenerator.Api.Core.Services.Interfaces.ContentGenerator.Api.Core.Services.Interfaces;
+using ContentGenerator.Api.Core.Services;
 using ContentGenerator.Api.Core.UseCases.DestinyCase;
 using ContentGenerator.Api.Core.UseCases.EmailCase;
 using ContentGenerator.Api.Core.UseCases.EmailCase.Interfaces;
@@ -9,11 +11,14 @@ using ContentGenerator.Api.Core.UseCases.EventCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase;
 using ContentGenerator.Api.Core.UseCases.HomenagemCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.HumorCase;
-using ContentGenerator.Api.Core.UseCases.ShippingAccounts;
+using ContentGenerator.Api.Core.UseCases.ShippingAccountsCase;
 using ContentGenerator.Api.Core.UseCases.SubjectTypeCase;
 using ContentGenerator.Api.Core.UseCases.ValidationCase;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
+using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
+using ContentGenerator.Api.Core.UseCases.ContentCase;
+using ContentGenerator.Api.Core.Services.Interfaces;
 
 namespace ContentGenerator.Api.Ports.Setup
 {
@@ -39,6 +44,8 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IUpdateEvent, UpdateEvent>();
             services.AddScoped<IDeleteEvent, DeleteEvent>();
 
+            services.AddScoped<IAddContent, AddContent>();
+
             services.AddScoped<ISearchDestiny, SearchDestiny>();
             services.AddScoped<ISearchHumor, SearchHumor>();
             services.AddScoped<ISearchValidation, SearchValidation>();
@@ -56,9 +63,13 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IEmailRepository, EmailRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IShippingAccountsRepository, ShippingAccountsRepository>();
+            services.AddScoped<IContentRepository, ContentRepository>();
 
             // Others
-
+            services.AddScoped(typeof(ILoggerService<>), typeof(LoggerService<>));
+            services.AddScoped<IGptService, GptService>();
+            services.AddScoped<ILlamaService, LlamaService>();
+            services.AddScoped<IDallEService, DallEService>();
 
             ServiceProvider = services.BuildServiceProvider();
         }

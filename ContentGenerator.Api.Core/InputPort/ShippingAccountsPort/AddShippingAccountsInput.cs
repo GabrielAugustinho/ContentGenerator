@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace ContentGenerator.Api.Core.InputPort.ShippingAccounts
+﻿namespace ContentGenerator.Api.Core.InputPort.ShippingAccountsPort
 {
     public class AddShippingAccountsInput
     {
