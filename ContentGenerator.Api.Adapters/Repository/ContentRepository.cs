@@ -1,21 +1,22 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.Entities;
 using ContentGenerator.Api.Core.InputPort.ContentPort;
-using ContentGenerator.Api.Core.Services.Interfaces.ContentGenerator.Api.Core.Services.Interfaces;
 using ContentGenerator.Api.Database.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 public class ContentRepository : IContentRepository
 {
     private readonly DataContext _context;
-    private readonly ILoggerService<ContentRepository> _logger;
+    private readonly ILogger<ContentRepository> _logger;
 
-    public ContentRepository(DataContext context, ILoggerService<ContentRepository> logger)
+    public ContentRepository(DataContext context, ILogger<ContentRepository> logger)
     {
         _context = context;
         _logger = logger;
     }
 
-    public async Task<bool> AddContent(ContentInput input)
+    public async Task<int?> AddContent(ContentInput input)
     {
         try
         {
@@ -33,19 +34,69 @@ public class ContentRepository : IContentRepository
                 DataValida = null,
                 PostValidado = null,
                 DataPublicacao = null,
-                IncluirImg = true, // or set based on input
+                IncluirImg = false,
                 Ativo = true
             };
 
             _context.Assunto.Add(assunto);
             await _context.SaveChangesAsync();
 
-            return true;
+            _logger.LogInformation($"Content successfully added to the database with ID {assunto.AssuntoId}.");
+            return assunto.AssuntoId;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to add content to the database.");
-            return false;
+            return null;
+        }
+    }
+
+    public async Task<Assunto?> GetContentById(int id)
+    {
+        try
+        {
+            _logger.LogInformation($"Retrieving content with ID {id} from the database.");
+            var assunto = await _context.Assunto.FindAsync(id);
+
+            if (assunto == null)
+            {
+                _logger.LogWarning($"Content with ID {id} not found in the database.");
+                return null;
+            }
+
+            _logger.LogInformation($"Content with ID {id} retrieved from the database.");
+            return assunto;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to retrieve content with ID {id} from the database.");
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<Assunto>> GetContentOfMonth()
+    {
+        try
+        {
+            _logger.LogInformation("Fetching contents for the current month.");
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            var assuntos = await _context.Assunto
+                .Where(a => a.Ativo && a.DataCriacao.Month == currentMonth && a.DataCriacao.Year == currentYear)
+                .Include(a => a.Destinos)
+                .Include(a => a.Humor)
+                .Include(a => a.TipoValidacao)
+                .Include(a => a.TipoAssunto)
+                .ToListAsync();
+
+            _logger.LogInformation("Contents for the current month fetched successfully.");
+            return assuntos;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch contents for the current month.");
+            return [];
         }
     }
 }

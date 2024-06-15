@@ -1,8 +1,6 @@
 ﻿using ContentGenerator.Api.Core.InputPort.ContentPort;
 using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
-using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.ContentPort;
-using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +11,21 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     public class ConteudoController : ControllerBase
     {
         private readonly IAddContent _addContent;
+        private readonly ISearchContent _searchContent;
+        private readonly IUpdateContent _updateContent;
         private readonly ILogger<ConteudoController> _logger;
         private readonly string _openAiKey;
         private readonly string _llamaAiKey;
 
-        public ConteudoController(IAddContent addContent,
+        public ConteudoController(ISearchContent searchContent,
+                                  IAddContent addContent,
+                                  IUpdateContent updateContent,
                                   IConfiguration configuration,
                                   ILogger<ConteudoController> logger)
         {
+            _searchContent = searchContent;
             _addContent = addContent;
+            _updateContent = updateContent;
             _logger = logger;
 
             _openAiKey = configuration["OPENAI_API_KEY"] ?? throw new ArgumentNullException(nameof(configuration), "OpenAI API key is missing.");
@@ -48,6 +52,54 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             {
                 _logger.LogError(ex, "Uma exception ocorreu durante a adição. Input: {@input}", input);
                 return StatusCode(500, "Ocorreu uma exception ao adicionar o conteúdo.");
+            }
+        }
+
+        [HttpGet("v1/GetById/{id}")]
+        public async Task<ActionResult<SearchContentOutput>> GetById(int id)
+        {
+            try
+            {
+                _logger.LogInformation("Searching for content with ID {Id}", id);
+                var result = await _searchContent.SearchById(id);
+
+                if (result is null)
+                {
+                    _logger.LogWarning("Content with ID {Id} not found.", id);
+                    return NotFound("Conteúdo não encontrado.");
+                }
+
+                _logger.LogInformation("Content with ID {Id} found.", id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to search for content with ID {Id}.", id);
+                return BadRequest("Ocorreu uma falha ao buscar o conteúdo pelo ID.");
+            }
+        }
+
+        [HttpPost("v1/GetAllContentOfMonth")]
+        public async Task<ActionResult<List<SearchContentOutput>>> GetAll()
+        {
+            try
+            {
+                _logger.LogInformation("Fetching all content for the current month.");
+                var result = await _searchContent.ContentsOfMonth();
+
+                if (!result.Any())
+                {
+                    _logger.LogWarning("No content found for the current month.");
+                    return NotFound("Nenhum conteúdo encontrado para este mês.");
+                }
+
+                _logger.LogInformation("Fetched all content for the current month.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch content for the current month.");
+                return BadRequest("Ocorreu uma falha ao listar os conteúdos deste mês.");
             }
         }
     }

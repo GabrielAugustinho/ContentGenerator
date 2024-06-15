@@ -50,9 +50,9 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
                 }
 
                 var contentInput = ParseToContentInput(input, originalPost, dalleResponse);
-                bool contentAdded = await _contentRepository.AddContent(contentInput);
+                var contentId = await _contentRepository.AddContent(contentInput);
 
-                return contentAdded ? new ContentGeneratorResponse(originalPost, dalleResponse) : null;
+                return contentId != null ? new ContentGeneratorResponse(contentId.Value, originalPost, dalleResponse) : null;
             }
             catch (Exception ex)
             {

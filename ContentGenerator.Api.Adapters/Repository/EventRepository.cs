@@ -95,7 +95,7 @@ namespace ContentGenerator.Api.Adapters.Repository
                 .Include(h => h.TipoHomenagem)
                 .ToListAsync();
 
-            return homenagens.Select(h => ToSearchEventOutput(h)).ToList();
+            return homenagens.Select(ToSearchEventOutput).ToList();
         }
 
         public async Task<bool> UpdateEvent(UpdateEventInput input)
