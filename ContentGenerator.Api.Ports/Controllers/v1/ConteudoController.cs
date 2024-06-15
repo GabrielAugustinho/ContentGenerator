@@ -1,5 +1,4 @@
 ﻿using ContentGenerator.Api.Core.InputPort.ContentPort;
-using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.OutputPort.ContentPort;
 using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -100,6 +99,30 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             {
                 _logger.LogError(ex, "Failed to fetch content for the current month.");
                 return BadRequest("Ocorreu uma falha ao listar os conteúdos deste mês.");
+            }
+        }
+
+        [HttpPut("v1/Update")]
+        public async Task<ActionResult<string>> Update(UpdateContentInput input)
+        {
+            try
+            {
+                _logger.LogInformation("Updating content with ID {Id}", input.ContentId);
+                var result = await _updateContent.Execute(input);
+
+                if (!result)
+                {
+                    _logger.LogWarning("Failed to update content with ID {Id}", input.ContentId);
+                    return NotFound("Ocorreu um erro ao tentar atualizar o conteúdo, verifique se o ID é válido.");
+                }
+
+                _logger.LogInformation("Content with ID {Id} updated successfully.", input.ContentId);
+                return Ok("Conteúdo atualizado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update content with ID {Id}", input.ContentId);
+                return BadRequest("Ocorreu uma falha ao atualizar o conteúdo.");
             }
         }
     }

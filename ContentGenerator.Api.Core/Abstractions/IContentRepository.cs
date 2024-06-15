@@ -8,5 +8,6 @@ namespace ContentGenerator.Api.Core.Abstractions
         Task<int?> AddContent(ContentInput input);
         Task<Assunto?> GetContentById(int id);
         Task<IEnumerable<Assunto?>> GetContentOfMonth();
+        Task<bool> UpdateContent(UpdateContentInput input);
     }
 }

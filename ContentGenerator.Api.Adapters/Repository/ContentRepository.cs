@@ -99,4 +99,40 @@ public class ContentRepository : IContentRepository
             return [];
         }
     }
+
+    public async Task<bool> UpdateContent(UpdateContentInput input)
+    {
+        try
+        {
+            _logger.LogInformation("Updating content with ID {Id} in the database.", input.ContentId);
+            var existingAssunto = await _context.Assunto.FirstOrDefaultAsync(h => h.AssuntoId == input.ContentId);
+
+            if (existingAssunto == null)
+            {
+                _logger.LogWarning("Content with ID {Id} not found in the database.", input.ContentId);
+                return false;
+            }
+
+            existingAssunto.TipoValidacaoId = input.ValidationId;
+            existingAssunto.HumorId = input.HumorId;
+            existingAssunto.DestinosId = input.DestinyId;
+            existingAssunto.TipoAssuntoId = input.EventType;
+            existingAssunto.DataValida = DateTime.UtcNow;
+            existingAssunto.PostValidado = input.PostValidated;
+            existingAssunto.ImagemPost = input.PostImage;
+            existingAssunto.IncluirImg = input.UserImage;
+            existingAssunto.Ativo = input.Active;
+
+            _context.Assunto.Update(existingAssunto);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Content with ID {Id} updated successfully in the database.", input.ContentId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update content with ID {Id} in the database.", input.ContentId);
+            return false;
+        }
+    }
 }
