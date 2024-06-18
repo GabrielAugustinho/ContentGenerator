@@ -135,4 +135,21 @@ public class ContentRepository : IContentRepository
             return false;
         }
     }
+
+    public async Task<bool> PublishContent(Assunto input)
+    {
+        try
+        {
+            _context.Assunto.Update(input);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Content with ID {Id} updated successfully in the database.", input.AssuntoId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update content with ID {Id} in the database.", input.AssuntoId);
+            return false;
+        }
+    }
 }

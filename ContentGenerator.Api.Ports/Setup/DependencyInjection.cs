@@ -19,6 +19,7 @@ using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.ContentCase;
 using ContentGenerator.Api.Core.Services.Interfaces;
+using ContentGenerator.Api.Core.UseCases.PublicationCase;
 
 namespace ContentGenerator.Api.Ports.Setup
 {
@@ -54,6 +55,15 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<ISearchEventType, SearchEventType>();
             services.AddScoped<ISearchSubjectType, SearchSubjectType>();
             services.AddScoped<IAddShippingAccounts, AddShippingAccounts>();
+            services.AddScoped<IAddPublication, AddPublication>();
+
+            // Services
+            services.AddScoped(typeof(ILoggerService<>), typeof(LoggerService<>));
+            services.AddScoped<IGptService, GptService>();
+            services.AddScoped<ILlamaService, LlamaService>();
+            services.AddScoped<IDallEService, DallEService>();
+            services.AddScoped<IWhatsAppService, WhatsAppService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // Abstractions
             services.AddScoped<IWhatsAppRepository, WhatsAppRepository>();
@@ -66,13 +76,8 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IShippingAccountsRepository, ShippingAccountsRepository>();
             services.AddScoped<IContentRepository, ContentRepository>();
-
+            
             // Others
-            services.AddScoped(typeof(ILoggerService<>), typeof(LoggerService<>));
-            services.AddScoped<IGptService, GptService>();
-            services.AddScoped<ILlamaService, LlamaService>();
-            services.AddScoped<IDallEService, DallEService>();
-
             ServiceProvider = services.BuildServiceProvider();
         }
     }
