@@ -35,22 +35,23 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to search for content with ID {Id}.", id);
-                return null;
+                throw;
             }
         }
 
-        public async Task<IEnumerable<SearchContentOutput>> ContentsOfMonth()
+        public async Task<List<SearchContentOutput>> ContentsOfMonth()
         {
             try
             {
-                _logger.LogInformation("Fetching contents for the current month.");
-                var assuntos = await _contentRepository.GetContentOfMonth();
-                return assuntos.Select(AssuntoToOutput);
+                _logger.LogInformation("Fetching all content for the current month.");
+                var results = await _contentRepository.GetContentOfMonth();
+                _logger.LogInformation("Fetched all content for the current month.");
+                return results.Select(AssuntoToOutput).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to fetch contents for the current month.");
-                return Enumerable.Empty<SearchContentOutput>();
+                _logger.LogError(ex, "Failed to fetch content for the current month.");
+                throw;
             }
         }
 

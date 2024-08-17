@@ -8,23 +8,29 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
     [ApiController]
     public class TipoEventosController : ControllerBase
     {
-        private readonly ISearchEventType _searchValidation;
+        private readonly ISearchEventType _searchEventType;
+        private readonly ILogger<TipoEventosController> _logger;
 
-        public TipoEventosController(ISearchEventType searchEventType)
+        public TipoEventosController(ISearchEventType searchEventType, ILogger<TipoEventosController> logger)
         {
-            _searchValidation = searchEventType;
+            _searchEventType = searchEventType;
+            _logger = logger;
         }
 
         [HttpGet("v1/GetAll")]
         public async Task<ActionResult<List<SearchEventTypeOutput>>> GetAll()
         {
+            _logger.LogInformation("Iniciando a busca por todos os tipos de eventos.");
+
             try
             {
-                var result = await _searchValidation.Execute();
+                var result = await _searchEventType.Execute();
+                _logger.LogInformation("Busca por todos os tipos de eventos concluída com sucesso.");
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao listar os tipos de eventos.");
                 return BadRequest("Ocorreu uma falha ao listar os tipos de eventos.");
             }
         }

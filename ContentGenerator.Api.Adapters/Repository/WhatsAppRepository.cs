@@ -4,6 +4,7 @@ using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Database.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
@@ -11,50 +12,77 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
     public class WhatsAppRepository : IWhatsAppRepository
     {
         private readonly DataContext _dataContext;
+        private readonly ILogger<WhatsAppRepository> _logger;
 
-        public WhatsAppRepository(DataContext dataContext)
+        public WhatsAppRepository(DataContext dataContext, ILogger<WhatsAppRepository> logger)
         {
             _dataContext = dataContext;
+            _logger = logger;
         }
 
         public async Task<SearchWhatsAppOutput?> GetWhatsAppById(int id)
         {
-            WhatsApp? whatsApp = await _dataContext.WhatsApp.FindAsync(id);
+            _logger.LogInformation($"Buscando contato WhatsApp com ID {id}.");
 
-            if (whatsApp is null)
+            try
+            {
+                WhatsApp? whatsApp = await _dataContext.WhatsApp.FindAsync(id);
+
+                if (whatsApp is null)
+                {
+                    _logger.LogWarning($"Contato WhatsApp com ID {id} não encontrado.");
+                    return default;
+                }
+
+                _logger.LogInformation($"Contato WhatsApp com ID {id} encontrado com sucesso.");
+                return WhatsAppToOutput(whatsApp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erro ao buscar o contato WhatsApp com ID {id}.");
                 return default;
-
-            return WhatsAppToOutput(whatsApp);
+            }
         }
 
         public async Task<IEnumerable<SearchWhatsAppOutput>> GetWhatsAppPaged(SearchWhatsAppInput input)
         {
-            int startIndex = (input.Pagination.PageNumber - 1) * input.Pagination.ItemsPerPage ?? 0;
+            _logger.LogInformation("Iniciando a busca paginada dos contatos WhatsApp.");
 
-            IQueryable<WhatsApp> query = _dataContext.WhatsApp;
-
-            if(input.Active is not null)
-                query = query.Where(x => x.Ativo == input.Active);
-
-            int totalCount = await query.CountAsync();
-
-            if (!string.IsNullOrEmpty(input.Pagination.SortColumn))
+            try
             {
-                var parameter = Expression.Parameter(typeof(WhatsApp), "x");
-                var property = Expression.Property(parameter, input.Pagination.SortColumn);
-                var lambda = Expression.Lambda(property, parameter);
+                int startIndex = (input.Pagination.PageNumber - 1) * input.Pagination.ItemsPerPage ?? 0;
+                IQueryable<WhatsApp> query = _dataContext.WhatsApp;
 
-                query = input.Pagination.SortOrder.ToLower() switch
+                if (input.Active is not null)
+                    query = query.Where(x => x.Ativo == input.Active);
+
+                int totalCount = await query.CountAsync();
+
+                if (!string.IsNullOrEmpty(input.Pagination.SortColumn))
                 {
-                    "asc" => Queryable.OrderBy(query, (dynamic)lambda),
-                    "desc" => Queryable.OrderByDescending(query, (dynamic)lambda),
-                    _ => query
-                };
-            }
-            query = query.Skip(startIndex).Take(input.Pagination.ItemsPerPage);
+                    var parameter = Expression.Parameter(typeof(WhatsApp), "x");
+                    var property = Expression.Property(parameter, input.Pagination.SortColumn);
+                    var lambda = Expression.Lambda(property, parameter);
 
-            List<WhatsApp> whatsApps = await query.ToListAsync();
-            return ListWhatsAppToListOutput(whatsApps, totalCount);
+                    query = input.Pagination.SortOrder.ToLower() switch
+                    {
+                        "asc" => Queryable.OrderBy(query, (dynamic)lambda),
+                        "desc" => Queryable.OrderByDescending(query, (dynamic)lambda),
+                        _ => query
+                    };
+                }
+
+                query = query.Skip(startIndex).Take(input.Pagination.ItemsPerPage);
+                List<WhatsApp> whatsApps = await query.ToListAsync();
+                _logger.LogInformation("Busca paginada dos contatos WhatsApp concluída com sucesso.");
+
+                return ListWhatsAppToListOutput(whatsApps, totalCount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao realizar a busca paginada dos contatos WhatsApp.");
+                return Enumerable.Empty<SearchWhatsAppOutput>();
+            }
         }
 
         private static List<SearchWhatsAppOutput> ListWhatsAppToListOutput(List<WhatsApp> whatsApp, int totalCount)
@@ -75,38 +103,95 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
 
         public async Task<bool> AddWhatsAppNumber(AddWhatsAppInput input)
         {
-            var whatsApp = new WhatsApp() { Nome = input.Nome, Numero_Fone = input.NumeroFone };
+            _logger.LogInformation("Iniciando a adição do contato WhatsApp.");
 
-            _dataContext.WhatsApp.Add(whatsApp);
-            var result = await _dataContext.SaveChangesAsync();
+            try
+            {
+                var whatsApp = new WhatsApp() { Nome = input.Nome, Numero_Fone = input.NumeroFone };
 
-            return result > 0;
+                _dataContext.WhatsApp.Add(whatsApp);
+                var result = await _dataContext.SaveChangesAsync();
+
+                if (result <= 0)
+                {
+                    _logger.LogWarning("Erro ao adicionar o contato WhatsApp.");
+                    return false;
+                }
+
+                _logger.LogInformation("Contato WhatsApp adicionado com sucesso.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao adicionar o contato WhatsApp.");
+                return false;
+            }
         }
 
         public async Task<bool> UpdateWhatsAppNumber(UpdateWhatsAppInput input)
         {
-            WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(input.Id);
+            _logger.LogInformation($"Iniciando a atualização do contato WhatsApp com ID {input.Id}.");
 
-            if (dbWhatsApp is null)
+            try
+            {
+                WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(input.Id);
+
+                if (dbWhatsApp is null)
+                {
+                    _logger.LogWarning($"Contato WhatsApp com ID {input.Id} não encontrado para atualização.");
+                    return false;
+                }
+
+                dbWhatsApp.Update(input.Nome, input.NumeroFone);
+
+                var result = await _dataContext.SaveChangesAsync();
+                if (result <= 0)
+                {
+                    _logger.LogWarning($"Erro ao atualizar o contato WhatsApp com ID {input.Id}.");
+                    return false;
+                }
+
+                _logger.LogInformation($"Contato WhatsApp com ID {input.Id} atualizado com sucesso.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erro ao atualizar o contato WhatsApp com ID {input.Id}.");
                 return false;
-
-            dbWhatsApp.Update(input.Nome, input.NumeroFone);
-
-            var result = await _dataContext.SaveChangesAsync();
-            return result > 0;
+            }
         }
 
         public async Task<bool> DeleteWhatsAppNumber(int id)
         {
-            WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(id);
+            _logger.LogInformation($"Iniciando a exclusão do contato WhatsApp com ID {id}.");
 
-            if (dbWhatsApp is null)
+            try
+            {
+                WhatsApp? dbWhatsApp = await _dataContext.WhatsApp.FindAsync(id);
+
+                if (dbWhatsApp is null)
+                {
+                    _logger.LogWarning($"Contato WhatsApp com ID {id} não encontrado para exclusão.");
+                    return false;
+                }
+
+                dbWhatsApp.Delete();
+
+                var result = await _dataContext.SaveChangesAsync();
+                if (result <= 0)
+                {
+                    _logger.LogWarning($"Erro ao deletar o contato WhatsApp com ID {id}.");
+                    return false;
+                }
+
+                _logger.LogInformation($"Contato WhatsApp com ID {id} deletado com sucesso.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Erro ao deletar o contato WhatsApp com ID {id}.");
                 return false;
-
-            dbWhatsApp.Delete();
-
-            var result = await _dataContext.SaveChangesAsync();
-            return result > 0;
+            }
         }
     }
 }

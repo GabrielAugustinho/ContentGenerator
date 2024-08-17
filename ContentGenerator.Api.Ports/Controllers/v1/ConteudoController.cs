@@ -31,7 +31,6 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
             _llamaAiKey = configuration["LLAMA_API_KEY"] ?? throw new ArgumentNullException(nameof(configuration), "Llama API key is missing.");
         }
 
-
         [HttpPost("v1/Add")]
         public async Task<ActionResult<ContentGeneratorResponse>> Add(AddContentInput input)
         {
