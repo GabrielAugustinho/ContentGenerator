@@ -39,7 +39,7 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
             }
         }
 
-        public async Task<List<SearchContentOutput>> ContentsOfMonth()
+        public async Task<IEnumerable<SearchContentOutput>> ContentsOfMonth()
         {
             try
             {
