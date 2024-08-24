@@ -2,9 +2,32 @@ using ContentGenerator.Api.Database.Context;
 using ContentGenerator.Api.Ports.Configurations;
 using ContentGenerator.Api.Ports.Setup;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Quando for subir para produção habilitar apenas os sites específicos que deverão acessar.
+/*
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SpecificOrigin", policy =>
+    {
+        policy.WithOrigins("https://meu-site.com", "https://outro-dominio.com", ...)
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+*/
+
 
 builder.Services.AddControllers();
 
@@ -18,13 +41,12 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 var app = builder.Build();
 
-app.UseSwaggerConfiguration(app.Environment);
+// Ativando CORS
+app.UseCors("AllowAll");
 
+app.UseSwaggerConfiguration(app.Environment);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-[ExcludeFromCodeCoverage]
-public partial class Program { }
