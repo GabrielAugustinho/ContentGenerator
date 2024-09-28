@@ -1,7 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.InputPort.ContentPort;
+using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.ContentPort;
-using ContentGenerator.Api.Core.OutputPort.DallE;
 using ContentGenerator.Api.Core.Services.Interfaces;
 using ContentGenerator.Api.Core.Services.Interfaces.ContentGenerator.Api.Core.Services.Interfaces;
 using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
@@ -13,46 +13,43 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
         private readonly IContentRepository _contentRepository;
         private readonly IGptService _gptService;
         private readonly ILlamaService _llamaService;
-        private readonly IDallEService _dallEService;
+        private readonly ITogetherTextService _togetherTextService;
+        private readonly ITogetherImageService _togetherImageService;
         private readonly ILoggerService<AddContent> _logger;
 
         public AddContent(IContentRepository contentRepository,
                           IGptService gptService,
                           ILlamaService llamaService,
-                          IDallEService dallEService,
+                          ITogetherTextService togetherTextService,
+                          ITogetherImageService togetherImageService,
                           ILoggerService<AddContent> logger)
         {
             _contentRepository = contentRepository;
             _gptService = gptService;
             _llamaService = llamaService;
-            _dallEService = dallEService;
+            _togetherTextService = togetherTextService;
+            _togetherImageService = togetherImageService;
             _logger = logger;
         }
 
-        public async Task<ContentGeneratorResponse?> Execute(AddContentInput input, string openIAKey, string llamaIAKey)
+        public async Task<ContentGeneratorResponse?> Execute(AddContentInput input, KeysModel keysMode)
         {
             try
             {
                 ValidateInput(input);
 
-                string originalPost = await GenerateText(input, openIAKey, llamaIAKey);
+                string originalPost = await _togetherTextService.GenerateText(input, keysMode.TogetherApiKey);
                 if (string.IsNullOrEmpty(originalPost))
-                {
-                    _logger.LogWarning($"Falha ao gerar o conteudo. Input: {input}");
-                    return null;
-                }
+                    originalPost = await GenerateText(input, keysMode.OpenIAKey, keysMode.LlamaIAKey);
 
-                var dalleResponse = await _dallEService.GenerateImage(input, openIAKey);
-                if (dalleResponse?.Data == null || dalleResponse.Data.Count == 0)
-                {
-                    _logger.LogWarning($"Failed to generate image. Input: {input}");
-                    return null;
-                }
+                string? originalImage = await _togetherImageService.GenerateImage(input, keysMode.TogetherApiKey);
+                if (string.IsNullOrEmpty(originalImage))
+                    throw new Exception(message: "Failed to generate image with Together.");
 
-                var contentInput = ParseToContentInput(input, originalPost, dalleResponse);
+                var contentInput = ParseToContentInput(input, originalPost, originalImage);
                 var contentId = await _contentRepository.AddContent(contentInput);
 
-                return contentId != null ? new ContentGeneratorResponse(contentId.Value, originalPost, dalleResponse) : null;
+                return contentId != null ? new ContentGeneratorResponse(contentId.Value, originalPost, originalImage) : null;
             }
             catch (Exception ex)
             {
@@ -75,9 +72,8 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
                 : await _llamaService.GenerateText(input, llamaIAKey);
         }
 
-        private ContentInput ParseToContentInput(AddContentInput input, string originalPost, DalleResponse dalleResponse)
+        private ContentInput ParseToContentInput(AddContentInput input, string originalPost, string originalImage)
         {
-            string imagePost = dalleResponse.Data.FirstOrDefault()?.Url;
             return new ContentInput
             {
                 TipoValidacaoId = input.TipoValidacaoId,
@@ -88,7 +84,7 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
                 ObjEveAssunto = input.DescricaoUsuario,
                 DataGeracao = DateTime.UtcNow,
                 PostOriginal = originalPost,
-                ImagemPost = imagePost
+                ImagemPost = originalImage
             };
         }
     }

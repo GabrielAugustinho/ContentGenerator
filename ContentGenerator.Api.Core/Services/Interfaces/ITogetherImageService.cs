@@ -2,8 +2,8 @@
 
 namespace ContentGenerator.Api.Core.Services.Interfaces
 {
-    public interface IGptService
+    public interface ITogetherImageService
     {
-        public Task<string> GenerateText(AddContentInput input, string openAiApiKey);
+        Task<string?> GenerateImage(AddContentInput input, string togetherApiKey);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ContentGenerator.Api.Core.InputPort.ContentPort;
+using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.ContentPort;
 using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +16,22 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         private readonly ILogger<ConteudoController> _logger;
         private readonly string _openAiKey;
         private readonly string _llamaAiKey;
+        private readonly string _togetherApiKey;
 
-        public ConteudoController(ISearchContent searchContent,
-                                  IAddContent addContent,
+        public ConteudoController(IAddContent addContent,
+                                  ISearchContent searchContent,
                                   IUpdateContent updateContent,
                                   IConfiguration configuration,
                                   ILogger<ConteudoController> logger)
         {
-            _searchContent = searchContent;
             _addContent = addContent;
+            _searchContent = searchContent;
             _updateContent = updateContent;
             _logger = logger;
 
-            _openAiKey = configuration["OPENAI_API_KEY"] ?? throw new ArgumentNullException(nameof(configuration), "OpenAI API key is missing.");
-            _llamaAiKey = configuration["LLAMA_API_KEY"] ?? throw new ArgumentNullException(nameof(configuration), "Llama API key is missing.");
+            _openAiKey = configuration["OPENAI_API_KEY"];
+            _llamaAiKey = configuration["LLAMA_API_KEY"];
+            _togetherApiKey = configuration["TOGETHER_API_KEY"];
         }
 
         [HttpPost("v1/Add")]
@@ -36,7 +39,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         {
             try
             {
-                var result = await _addContent.Execute(input, _openAiKey, _llamaAiKey);
+                var result = await _addContent.Execute(input, new KeysModel(_openAiKey, _llamaAiKey, _togetherApiKey));
 
                 if (result == null)
                 {

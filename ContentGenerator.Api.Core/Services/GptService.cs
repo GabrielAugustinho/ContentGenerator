@@ -1,9 +1,8 @@
-﻿using ChatGPT.Net;
-using ContentGenerator.Api.Core.InputPort.ContentPort;
+﻿using ContentGenerator.Api.Core.InputPort.ContentPort;
 using ContentGenerator.Api.Core.Services.Interfaces;
 using ContentGenerator.Api.Core.Services.Interfaces.ContentGenerator.Api.Core.Services.Interfaces;
-using System;
-using System.Threading.Tasks;
+using OpenAI_API;
+using OpenAI_API.Completions;
 
 namespace ContentGenerator.Api.Core.Services
 {
@@ -16,23 +15,35 @@ namespace ContentGenerator.Api.Core.Services
             _logger = logger;
         }
 
-        public async Task<string> GenerateText(AddContentInput input, string openIAKey)
+        public async Task<string> GenerateText(AddContentInput input, string openAiApiKey)
         {
-            if (string.IsNullOrEmpty(openIAKey))
+            if (string.IsNullOrEmpty(openAiApiKey))
             {
-                _logger.LogError(new ArgumentException("OpenAI key is missing"), "Failed to generate text due to missing OpenAI key.");
+                _logger.LogWarning("Failed to generate text due to missing OpenAI key.");
                 return string.Empty;
             }
 
-            string prompt = CreatePrompt(input);
+            APIAuthentication aPIAuthentication = new APIAuthentication(openAiApiKey);
+            OpenAIAPI openAiApi = new OpenAIAPI(aPIAuthentication);
 
             try
             {
-                var openai = new ChatGpt(openIAKey);
-                var responseContent = await openai.Ask(prompt);
+                string prompt = CreatePrompt(input);
+                string model = "text-davinci-003";
+                int maxTokens = 50;
 
-                if (!string.IsNullOrEmpty(responseContent))
-                    return responseContent;
+                var completionRequest = new CompletionRequest
+                {
+                    Prompt = prompt,
+                    Model = model,
+                    MaxTokens = maxTokens
+                };
+
+                var completionResult = await openAiApi.Completions.CreateCompletionAsync(completionRequest);
+                var generatedText = completionResult.Completions[0].Text; //completionResult.Choices[0].Text.Trim();
+
+                if (!string.IsNullOrEmpty(generatedText))
+                    return generatedText;
 
                 _logger.LogWarning($"OpenAI response was empty. Input: {input}");
                 return string.Empty;

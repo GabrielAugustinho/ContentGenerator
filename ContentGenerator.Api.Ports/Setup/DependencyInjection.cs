@@ -64,6 +64,8 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IDallEService, DallEService>();
             services.AddScoped<IWhatsAppService, WhatsAppService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ITogetherImageService, TogetherImageService>();
+            services.AddScoped<ITogetherTextService, TogetherTextService>();
 
             // Abstractions
             services.AddScoped<IWhatsAppRepository, WhatsAppRepository>();

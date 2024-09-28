@@ -21,7 +21,7 @@ namespace ContentGenerator.Api.Core.Services
         {
             if (string.IsNullOrEmpty(llamaIAKey))
             {
-                _logger.LogError(new ArgumentException("Llama key is missing"), "Failed to generate text due to missing Llama key.");
+                _logger.LogWarning("Failed to generate text due to missing Llama key.");
                 return string.Empty;
             }
 
