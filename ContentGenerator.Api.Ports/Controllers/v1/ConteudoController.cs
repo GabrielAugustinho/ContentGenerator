@@ -39,7 +39,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         {
             try
             {
-                var result = await _addContent.Execute(input, new KeysModel(_openAiKey, _llamaAiKey, _togetherApiKey));
+                var result = await _addContent.Execute(input, new IaKeysModel(_openAiKey, _llamaAiKey, _togetherApiKey));
 
                 if (result == null)
                 {

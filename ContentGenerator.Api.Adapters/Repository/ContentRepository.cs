@@ -56,7 +56,13 @@ public class ContentRepository : IContentRepository
         try
         {
             _logger.LogInformation($"Retrieving content with ID {id} from the database.");
-            var assunto = await _context.Assunto.FindAsync(id);
+
+            var assunto = await _context.Assunto
+                .Include(a => a.Destinos)
+                .Include(a => a.Humor)
+                .Include(a => a.TipoValidacao)
+                .Include(a => a.TipoAssunto)
+                .FirstOrDefaultAsync(a => a.AssuntoId == id);
 
             if (assunto == null)
             {
@@ -73,6 +79,7 @@ public class ContentRepository : IContentRepository
             return null;
         }
     }
+
 
     public async Task<IEnumerable<Assunto>> GetContentOfMonth()
     {
@@ -114,9 +121,6 @@ public class ContentRepository : IContentRepository
             }
 
             existingAssunto.TipoValidacaoId = input.ValidationId;
-            existingAssunto.HumorId = input.HumorId;
-            existingAssunto.DestinosId = input.DestinyId;
-            existingAssunto.TipoAssuntoId = input.EventType;
             existingAssunto.DataValida = DateTime.UtcNow;
             existingAssunto.PostValidado = input.PostValidated;
             existingAssunto.ImagemPost = input.PostImage;

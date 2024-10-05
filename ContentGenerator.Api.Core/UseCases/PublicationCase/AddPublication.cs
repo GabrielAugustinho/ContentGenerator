@@ -1,6 +1,7 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.InputPort.ContentPort;
 using ContentGenerator.Api.Core.InputPort.PublicationPort;
+using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -25,7 +26,7 @@ namespace ContentGenerator.Api.Core.UseCases.PublicationCase
             _logger = logger;
         }
 
-        public async Task<bool> Execute(PublicationInput input)
+        public async Task<bool> Execute(PublicationInput input, TwillioKeysModel keys)
         {
             try
             {
@@ -36,10 +37,16 @@ namespace ContentGenerator.Api.Core.UseCases.PublicationCase
                     return false;
                 }
 
+                if (string.IsNullOrEmpty(assunto.DataValida.ToString()))
+                {
+                    _logger.LogWarning("Assunto not validated. AssuntoId: {AssuntoId}", input.AssuntoId);
+                    return false;
+                }
+
                 switch (assunto.Destinos.Descricao)
                 {
                     case "WhatsApp":
-                        await _whatsAppService.SendWhatsAppMessage(assunto);
+                        await _whatsAppService.SendWhatsAppMessage(input, assunto, keys);
                         break;
                     case "Email":
                         await _emailService.SendEmail(assunto);

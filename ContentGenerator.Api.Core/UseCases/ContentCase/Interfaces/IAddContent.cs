@@ -6,6 +6,6 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces
 {
     public interface IAddContent
     {
-        Task<ContentGeneratorResponse?> Execute(AddContentInput input, KeysModel keysModel);
+        Task<ContentGeneratorResponse?> Execute(AddContentInput input, IaKeysModel keysModel);
     }
 }

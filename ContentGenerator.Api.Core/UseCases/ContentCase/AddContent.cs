@@ -32,7 +32,7 @@ namespace ContentGenerator.Api.Core.UseCases.ContentCase
             _logger = logger;
         }
 
-        public async Task<ContentGeneratorResponse?> Execute(AddContentInput input, KeysModel keysMode)
+        public async Task<ContentGeneratorResponse?> Execute(AddContentInput input, IaKeysModel keysMode)
         {
             try
             {
