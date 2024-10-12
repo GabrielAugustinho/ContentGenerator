@@ -9,6 +9,7 @@ namespace ContentGenerator.Api.Core.InputPort.Models
         public int ItemsPerPage { get; set; }
         public string SortOrder { get; set; }
         public string SortColumn { get; set; }
+        public bool? Active { get; set; }
 
         public PaginationInput(int? pageNumber, int itemsPerPage, string sortOrder, string sortColumn)
         {

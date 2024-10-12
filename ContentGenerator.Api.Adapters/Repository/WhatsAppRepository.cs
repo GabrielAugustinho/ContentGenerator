@@ -1,5 +1,6 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
 using ContentGenerator.Api.Core.Entities;
+using ContentGenerator.Api.Core.InputPort.Models;
 using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Database.Context;
@@ -44,13 +45,13 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
             }
         }
 
-        public async Task<IEnumerable<SearchWhatsAppOutput>> GetWhatsAppPaged(SearchWhatsAppInput input)
+        public async Task<IEnumerable<SearchWhatsAppOutput>> GetWhatsAppPaged(PaginationInput input)
         {
             _logger.LogInformation("Iniciando a busca paginada dos contatos WhatsApp.");
 
             try
             {
-                int startIndex = (input.Pagination.PageNumber - 1) * input.Pagination.ItemsPerPage ?? 0;
+                int startIndex = (input.PageNumber - 1) * input.ItemsPerPage ?? 0;
                 IQueryable<WhatsApp> query = _dataContext.WhatsApp;
 
                 if (input.Active is not null)
@@ -58,13 +59,13 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
 
                 int totalCount = await query.CountAsync();
 
-                if (!string.IsNullOrEmpty(input.Pagination.SortColumn))
+                if (!string.IsNullOrEmpty(input.SortColumn))
                 {
                     var parameter = Expression.Parameter(typeof(WhatsApp), "x");
-                    var property = Expression.Property(parameter, input.Pagination.SortColumn);
+                    var property = Expression.Property(parameter, input.SortColumn);
                     var lambda = Expression.Lambda(property, parameter);
 
-                    query = input.Pagination.SortOrder.ToLower() switch
+                    query = input.SortOrder.ToLower() switch
                     {
                         "asc" => Queryable.OrderBy(query, (dynamic)lambda),
                         "desc" => Queryable.OrderByDescending(query, (dynamic)lambda),
@@ -72,7 +73,7 @@ namespace ContentGenerator.Api.Adapters.Repository.WhatsAppRepo
                     };
                 }
 
-                query = query.Skip(startIndex).Take(input.Pagination.ItemsPerPage);
+                query = query.Skip(startIndex).Take(input.ItemsPerPage);
                 List<WhatsApp> whatsApps = await query.ToListAsync();
                 _logger.LogInformation("Busca paginada dos contatos WhatsApp concluída com sucesso.");
 

@@ -1,5 +1,5 @@
 ﻿using ContentGenerator.Api.Core.Abstractions;
-using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+using ContentGenerator.Api.Core.InputPort.Models;
 using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
@@ -18,7 +18,7 @@ namespace ContentGenerator.Api.Core.UseCases.WhatsAppCase
             _logger = logger;
         }
 
-        public async Task<PageModel<SearchWhatsAppOutput>> SearchPaged(SearchWhatsAppInput input)
+        public async Task<PageModel<SearchWhatsAppOutput>> SearchPaged(PaginationInput input)
         {
             _logger.LogInformation("Iniciando a busca paginada de contatos WhatsApp.");
 
@@ -26,11 +26,11 @@ namespace ContentGenerator.Api.Core.UseCases.WhatsAppCase
             {
                 var userOutputList = await _whatsAppRepository.GetWhatsAppPaged(input);
 
-                var page = new PageModel<SearchWhatsAppOutput>(itemsPerPage: input.Pagination.ItemsPerPage,
-                                                               numberPage: input.Pagination.PageNumber,
+                var page = new PageModel<SearchWhatsAppOutput>(itemsPerPage: input.ItemsPerPage,
+                                                               numberPage: input.PageNumber,
                                                                totalItems: userOutputList.Any() ? userOutputList.First().TotalCount : 0,
-                                                               sortOrder: input.Pagination.SortOrder,
-                                                               sortColumn: input.Pagination.SortColumn)
+                                                               sortOrder: input.SortOrder,
+                                                               sortColumn: input.SortColumn)
                 {
                     Items = userOutputList,
                     TotalRecords = userOutputList.Count()

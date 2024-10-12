@@ -20,6 +20,7 @@ using ContentGenerator.Api.Core.UseCases.ContentCase.Interfaces;
 using ContentGenerator.Api.Core.UseCases.ContentCase;
 using ContentGenerator.Api.Core.Services.Interfaces;
 using ContentGenerator.Api.Core.UseCases.PublicationCase;
+using ContentGenerator.Api.Core.UseCases.PublicationCase.Interfaces;
 
 namespace ContentGenerator.Api.Ports.Setup
 {
@@ -56,6 +57,7 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<ISearchSubjectType, SearchSubjectType>();
             services.AddScoped<IAddShippingAccounts, AddShippingAccounts>();
             services.AddScoped<IAddPublication, AddPublication>();
+            services.AddScoped<ISearchPostPaged, SearchPostPaged>();
 
             // Services
             services.AddScoped(typeof(ILoggerService<>), typeof(LoggerService<>));
@@ -78,6 +80,7 @@ namespace ContentGenerator.Api.Ports.Setup
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IShippingAccountsRepository, ShippingAccountsRepository>();
             services.AddScoped<IContentRepository, ContentRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
             
             // Others
             ServiceProvider = services.BuildServiceProvider();

@@ -3,6 +3,7 @@ using ContentGenerator.Api.Core.InputPort.ContentPort;
 using ContentGenerator.Api.Core.InputPort.PublicationPort;
 using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.Services.Interfaces;
+using ContentGenerator.Api.Core.UseCases.PublicationCase.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace ContentGenerator.Api.Core.UseCases.PublicationCase
@@ -10,17 +11,20 @@ namespace ContentGenerator.Api.Core.UseCases.PublicationCase
     public class AddPublication : IAddPublication
     {
         private readonly IContentRepository _contentRepository;
+        private readonly IPostRepository _postRepository;
         private readonly IWhatsAppService _whatsAppService;
         private readonly IEmailService _emailService;
         private readonly ILogger<AddPublication> _logger;
 
         public AddPublication(
             IContentRepository contentRepository,
+            IPostRepository postRepository,
             IWhatsAppService whatsAppService,
             IEmailService emailService,
             ILogger<AddPublication> logger)
         {
             _contentRepository = contentRepository;
+            _postRepository = postRepository;
             _whatsAppService = whatsAppService;
             _emailService = emailService;
             _logger = logger;
@@ -65,8 +69,10 @@ namespace ContentGenerator.Api.Core.UseCases.PublicationCase
                     return false;
                 }
 
+                var addPost = await _postRepository.AddPost(new PostInput { AssuntoId = assunto.AssuntoId });
+
                 _logger.LogInformation("Content published successfully. AssuntoId: {AssuntoId}", input.AssuntoId);
-                return true;
+                return addPost > 0;
             }
             catch (Exception ex)
             {

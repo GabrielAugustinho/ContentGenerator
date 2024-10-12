@@ -1,4 +1,5 @@
-﻿using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
+﻿using ContentGenerator.Api.Core.InputPort.Models;
+using ContentGenerator.Api.Core.InputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.OutputPort.WhatsAppPort;
 using ContentGenerator.Api.Core.UseCases.WhatsAppCase.Interfaces;
@@ -55,7 +56,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpPost("v1/GetAll")]
-        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetAll(SearchWhatsAppInput input)
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetAll(PaginationInput input)
         {
             _logger.LogInformation("Iniciando a busca de todos os contatos WhatsApp.");
 
@@ -74,7 +75,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpPost("v1/GetActives")]
-        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetActives(SearchWhatsAppInput input)
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetActives(PaginationInput input)
         {
             _logger.LogInformation("Iniciando a busca dos contatos WhatsApp ativos.");
 
@@ -93,7 +94,7 @@ namespace ContentGenerator.Api.Ports.Controllers.v1
         }
 
         [HttpPost("v1/GetInactives")]
-        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetInactives(SearchWhatsAppInput input)
+        public async Task<ActionResult<PageModel<SearchWhatsAppOutput>>> GetInactives(PaginationInput input)
         {
             _logger.LogInformation("Iniciando a busca dos contatos WhatsApp inativos.");
 

@@ -1,16 +1,10 @@
 ﻿namespace ContentGenerator.Api.Core.Models
 {
-    public class TwillioKeysModel
+    public class TwillioKeysModel(string accountSid, string authToken, string twillioNumber, string imgBBApiKeys)
     {
-        public readonly string AccountSid = string.Empty;
-        public readonly string AuthToken = string.Empty;
-        public readonly string TwillioNumber = string.Empty;
-
-        public TwillioKeysModel(string accountSid, string authToken, string twillioNumber)
-        {
-            this.AccountSid = accountSid;
-            this.AuthToken = authToken;
-            this.TwillioNumber = twillioNumber;
-        }
+        public readonly string AccountSid = accountSid;
+        public readonly string AuthToken = authToken;
+        public readonly string TwillioNumber = twillioNumber;
+        public readonly string ImgBBApiKeys = imgBBApiKeys;
     }
 }

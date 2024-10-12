@@ -3,6 +3,7 @@ using ContentGenerator.Api.Core.InputPort.PublicationPort;
 using ContentGenerator.Api.Core.Models;
 using ContentGenerator.Api.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
@@ -21,6 +22,10 @@ namespace ContentGenerator.Api.Core.Services
         {
             try
             {
+                var imageName = $"publicacaoConteudo{assunto.AssuntoId}";
+                var imageUrl = await UploadBase64ImageToImgBB(assunto.ImagemPost, keys.ImgBBApiKeys, imageName);
+
+
                 TwilioClient.Init(keys.AccountSid, keys.AuthToken);
 
                 long notSendnumber = 0;
@@ -29,7 +34,7 @@ namespace ContentGenerator.Api.Core.Services
                 {
                     var message = await MessageResource.CreateAsync(
                         body: assunto.PostValidado,
-                        mediaUrl: [new Uri("https://demo.twilio.com/owl.png")],
+                        mediaUrl: [new(imageUrl)],
                         from: new Twilio.Types.PhoneNumber($"whatsapp:{keys.TwillioNumber}"),
                         to: new Twilio.Types.PhoneNumber($"whatsapp:{number}"));
 
@@ -45,5 +50,40 @@ namespace ContentGenerator.Api.Core.Services
                 throw new Exception("Ocorreu um erro durante o envio da mensagem", ex);
             }
         }
+
+        private async Task<string> UploadBase64ImageToImgBB(string base64Image, string imgbbApiKey, string imageName)
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    var requestContent = new MultipartFormDataContent
+                    {
+                        { new StringContent(imgbbApiKey), "key" },
+                        { new StringContent(base64Image), "image" },
+                        { new StringContent("31536000"), "expiration" },  // 1 ano em segundos (opcional)
+                        { new StringContent(imageName), "name" }  // Nome da imagem
+                    };
+
+                    var response = await httpClient.PostAsync("https://api.imgbb.com/1/upload", requestContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        dynamic jsonResponse = JsonConvert.DeserializeObject(responseContent);
+                        return jsonResponse.data.url;
+                    }
+                    else
+                    {
+                        throw new Exception($"Falha no upload para o ImgBB: {response.StatusCode}, {response.ReasonPhrase}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao tentar fazer upload da imagem para ImgBB", ex);
+            }
+        }
+
     }
 }
