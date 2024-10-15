@@ -70,13 +70,13 @@ namespace ContentGenerator.Api.Core.Services
 
         private string CreatePrompt(AddContentInput input)
         {
-            return $"Baseado nas informações abaixo, gere um texto para uma postagem: \n\n" +
-                   $"Evento: {input.Homenagem}\n" +
-                   $"Humor: {input.Humor}\n" +
-                   $"Destinos: {input.Destinos}\n" +
-                   $"Data: {input.DataPostagem:yyyy-MM-dd}\n" +
-                   $"Descrição: {input.DescricaoUsuario ?? "N/A"}\n\n" +
-                   $"Escreva um texto apropriado para o evento.";
+            return $"Baseado nas informações abaixo, gere um texto para uma postagem em uma rede social: \n\n" +
+                   $"O texto deve se basear no seguinte evento \"{input.Homenagem}\".\n" +
+                   $"O humor do texto deve ser \"{input.Humor}\".\n" +
+                   $"O texto será publicado no \"{input.Destinos}\" então não deve ser muito grande para se adequar a essa rede.\n" +
+                   $"A dia da celebração será {input.DataPostagem:yyyy-MM-dd}.\n" +
+                   $"{input.DescricaoUsuario ?? string.Empty}\n" +
+                   $"Escreva um texto apropriado para o evento, o texto deve estar em português.";
         }
     }
 }

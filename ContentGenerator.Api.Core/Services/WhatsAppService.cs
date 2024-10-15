@@ -23,7 +23,7 @@ namespace ContentGenerator.Api.Core.Services
             try
             {
                 var imageName = $"publicacaoConteudo{assunto.AssuntoId}";
-                var imageUrl = await UploadBase64ImageToImgBB(assunto.ImagemPost, keys.ImgBBApiKeys, imageName);
+                //var imageUrl = await UploadBase64ImageToImgBB(assunto.ImagemPost, keys.ImgBBApiKeys, imageName);
 
 
                 TwilioClient.Init(keys.AccountSid, keys.AuthToken);
@@ -34,9 +34,9 @@ namespace ContentGenerator.Api.Core.Services
                 {
                     var message = await MessageResource.CreateAsync(
                         body: assunto.PostValidado,
-                        mediaUrl: [new(imageUrl)],
+                        mediaUrl: [new("https://i.ibb.co/3dGChtq/publicacao-Conteudo3.jpg")],
                         from: new Twilio.Types.PhoneNumber($"whatsapp:{keys.TwillioNumber}"),
-                        to: new Twilio.Types.PhoneNumber($"whatsapp:{number}"));
+                        to: new Twilio.Types.PhoneNumber($"whatsapp:+55{number}"));
 
                     if (!string.IsNullOrEmpty(message.ErrorCode.ToString()))
                         notSendnumber++;

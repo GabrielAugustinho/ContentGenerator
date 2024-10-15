@@ -69,15 +69,12 @@ namespace ContentGenerator.Api.Core.Services
         // Método para criar o prompt com base nas informações do input
         private string CreatePrompt(AddContentInput input)
         {
-            return $"Crie uma imagem baseada nas seguintes informações: " +
-                   $"\n\n" +
-                   $"Evento do Dia (Homenagem): {input.Homenagem}.\n" +
-                   $"Tipo de Validação: {input.TipoValidacao}.\n" +
-                   $"Humor: {input.Humor}.\n" +
-                   $"Destinos (Plataformas): {input.Destinos}.\n" +
+            return $"Crie uma imagem baseada nas seguintes informações:\n\n" +
+                   $"A imagem deve representar o seguinte evento \"{input.Homenagem}\".\n" +
+                   $"O tom de humor da imagem deve ser \"{input.Humor}\".\n" +
                    $"Tipo de Assunto: {input.TipoAssunto}.\n" +
-                   $"Data de Postagem: {input.DataPostagem:yyyy-MM-dd}.\n" +
-                   $"Descrição do Usuário: {input.DescricaoUsuario ?? "N/A"}.\n\n" +
+                   $"A imagem será publicada no \"{input.Destinos}\" então deve se adequar a essa rede.\n" +
+                   $"Uma breve descrição sobre o evento {input.DescricaoUsuario ?? "N/A"}.\n\n" +
                    $"A imagem deve ser adequada para as plataformas especificadas e refletir o tom de humor solicitado.";
         }
 
