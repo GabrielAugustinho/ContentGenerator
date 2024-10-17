@@ -21,7 +21,7 @@ namespace ContentGenerator.Api.Core.Services
             if (string.IsNullOrEmpty(togetherApiKey))
             {
                 _logger.LogWarning("Failed to generate image due to missing Together AI key.");
-                return null;
+                return GetMockedImage();
             }
 
             string prompt = CreatePrompt(input);
@@ -31,7 +31,7 @@ namespace ContentGenerator.Api.Core.Services
             {
                 var requestBody = new
                 {
-                    model = "stabilityai/stable-diffusion-xl-base-1.0",  // Modelo para gerar a imagem
+                    model = "stabilityai/stable-diffusion-xl-base-1.0",
                     prompt = prompt,
                     width = int.Parse(imageSize.Split('x')[0]),
                     height = int.Parse(imageSize.Split('x')[1]),
@@ -50,19 +50,27 @@ namespace ContentGenerator.Api.Core.Services
                     {
                         var responseContent = await response.Content.ReadAsStringAsync();
                         dynamic jsonResponse = JsonConvert.DeserializeObject(responseContent);
-                        return jsonResponse.output.choices[0].image_base64;
+                        if (jsonResponse.output?.choices?.Count > 0)
+                        {
+                            return jsonResponse.output.choices[0].image_base64 ?? GetMockedImage();
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Together API returned an empty image list.");
+                            return GetMockedImage();
+                        }
                     }
                     else
                     {
                         _logger.LogWarning($"Together API image generation failed. StatusCode: {response.StatusCode}");
-                        return null;
+                        return GetMockedImage();
                     }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Exception occurred while generating image with Together AI. Input: {input}");
-                return null;
+                return GetMockedImage(); // Retorna a imagem mockada se a requisição falhar
             }
         }
 
@@ -89,8 +97,23 @@ namespace ContentGenerator.Api.Core.Services
                 "email" => "600x400",
                 "twitter" => "1200x675",
                 "linkedin" => "1200x627",
-                _ => "1024x1024" // Tamanho padrão caso a plataforma não seja reconhecida
+                _ => "1024x1024"
             };
+        }
+
+        private string? GetMockedImage()
+        {
+            try
+            {
+                var mockImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "unitau.jpeg");
+                byte[] imageBytes = File.ReadAllBytes(mockImagePath);
+                return Convert.ToBase64String(imageBytes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load mock image.");
+                return null;
+            }
         }
     }
 }

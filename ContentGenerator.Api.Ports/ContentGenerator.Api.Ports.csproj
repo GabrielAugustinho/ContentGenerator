@@ -24,4 +24,10 @@
     <ProjectReference Include="..\ContentGenerator.Api.Database\ContentGenerator.Api.Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Images\unitau.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
