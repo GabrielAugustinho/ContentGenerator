@@ -18,6 +18,8 @@ namespace ContentGenerator.Api.Core.Services
 
         public async Task<string?> GenerateImage(AddContentInput input, string togetherApiKey)
         {
+            return GetMockedImage();
+
             if (string.IsNullOrEmpty(togetherApiKey))
             {
                 _logger.LogWarning("Failed to generate image due to missing Together AI key.");
