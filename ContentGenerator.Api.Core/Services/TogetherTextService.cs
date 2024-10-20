@@ -50,7 +50,6 @@ namespace ContentGenerator.Api.Core.Services
                     if (response.IsSuccessStatusCode)
                     {
                         var responseContent = await response.Content.ReadAsStringAsync();
-                        // Parse response to extract generated text
                         dynamic jsonResponse = JsonConvert.DeserializeObject(responseContent);
                         return jsonResponse.choices[0].message.content;
                     }
@@ -76,7 +75,8 @@ namespace ContentGenerator.Api.Core.Services
                    $"O texto será publicado no \"{input.Destinos}\" então não deve ser muito grande para se adequar a essa rede.\n" +
                    $"A dia da celebração será {input.DataPostagem:yyyy-MM-dd}.\n" +
                    $"{input.DescricaoUsuario ?? string.Empty}\n" +
-                   $"Escreva um texto apropriado para o evento, o texto deve estar em português.";
+                   $"Escreva um texto apropriado para o evento, o texto deve estar em português.\n" +
+                   $"Apenas me retorne o texto sem dizer mais nada.";
         }
     }
 }
